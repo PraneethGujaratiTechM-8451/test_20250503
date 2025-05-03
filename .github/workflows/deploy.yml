@@ -1,0 +1,31 @@
+name: Deploy to Databricks
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - test
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Databricks CLI
+        run: |
+          pip install databricks-cli
+          databricks configure --token <<EOF
+          ${{ secrets.DATABRICKS_HOST }}
+          ${{ secrets.DATABRICKS_TOKEN }}
+          EOF
+
+      - name: Deploy to Databricks
+        run: |
+          databricks fs mkdirs dbfs:/my-deployment

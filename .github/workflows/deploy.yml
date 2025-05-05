@@ -17,7 +17,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          pip install wheel
+          python setup.py bdist_wheel
       - name: Set up Databricks CLI
         run: |
           pip install databricks-cli
@@ -29,3 +36,4 @@ jobs:
       - name: Deploy to Databricks
         run: |
           databricks fs mkdirs dbfs:/my-deployment
+          databricks fs cp --overwrite dist/*.whl dbfs:/my-deployment
